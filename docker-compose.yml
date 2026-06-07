@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # 1. The Message Broker
+  kafka:
+    image: confluentinc/confluent-local:7.5.0
+    container_name: kafka
+    ports:
+      - "9092:9092" 
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+    networks:
+      - major_project_network
+
+  # 2. Federated Graph Databases
+  banka:
+    image: memgraph/memgraph
+    container_name: banka
+    ports:
+      - "4000:7687"
+    networks:
+      - major_project_network
+
+  bankb:
+    image: memgraph/memgraph
+    container_name: bankb
+    ports:
+      - "4001:7687"
+    networks:
+      - major_project_network
+
+  bankc:
+    image: memgraph/memgraph
+    container_name: bankc
+    ports:
+      - "4002:7687"
+    networks:
+      - major_project_network
+
+  # 3. Graph Visualization
+  memgraph-lab:
+    image: memgraph/lab
+    container_name: memgraph-lab
+    ports:
+      - "3030:3000"
+    networks:
+      - major_project_network
+
+  # 4. Relational Audit Database
+  aml-postgres:
+    image: postgres:15
+    container_name: aml-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password 
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - major_project_network
+
+networks:
+  major_project_network:
+    driver: bridge
